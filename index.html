@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Star Stable Online Rich Presence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Rich Presence Discord pour Star Stable Online : montrez votre serveur, votre niveau et votre localisation en jeu directement sur votre profil Discord." />
+
+    <style>
+        :root {
+            --bg: #0f0a1a;
+            --bg-soft: #1b112b;
+            --accent: #e6b0d6;
+            --accent-strong: #ff7ad9;
+            --accent-soft: #37204f;
+            --text: #fdf6ff;
+            --text-muted: #bbaad6;
+            --card: #1a1028;
+            --border: #2a1b3d;
+            --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.55);
+            --radius-xl: 26px;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --transition-fast: 0.18s ease-out;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            background: radial-gradient(circle at top, #3b2058 0, #0f0a1a 55%, #050308 100%);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 22px 18px 40px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: radial-gradient(circle at 25% 10%, #ffe6ff, #f0b7ff 35%, #a95cff 75%, #4f1a81);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #241133;
+            font-weight: 900;
+            font-size: 18px;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-weight: 650;
+            letter-spacing: 0.02em;
+            font-size: 16px;
+        }
+
+        .brand-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        nav {
+            display: flex;
+            gap: 18px;
+            font-size: 14px;
+        }
+
+        nav a {
+            padding: 6px 10px;
+            border-radius: 999px;
+            color: var(--text-muted);
+            transition: background var(--transition-fast), color var(--transition-fast), transform 0.12s ease-out;
+        }
+
+        nav a:hover {
+            background: rgba(230, 176, 214, 0.08);
+            color: var(--text);
+            transform: translateY(-1px);
+        }
+
+        /* Hero */
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .hero-main {
+            padding: 26px 22px;
+            border-radius: var(--radius-xl);
+            background: radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 55%),
+                        radial-gradient(circle at bottom, rgba(255,122,217,0.13), transparent 60%),
+                        rgba(7, 5, 16, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(55, 32, 79, 0.9);
+            border-radius: 999px;
+            padding: 4px 10px 4px 5px;
+            margin-bottom: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+            border: 1px solid rgba(230, 176, 214, 0.4);
+        }
+
+        .badge-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 10%, #ffffff, #35ffb3 40%, #148f5e 95%);
+            box-shadow: 0 0 12px rgba(53, 255, 179, 0.85);
+        }
+
+        .hero-title {
+            font-size: 32px;
+            line-height: 1.15;
+            margin-bottom: 10px;
+        }
+
+        .hero-title span {
+            background: linear-gradient(120deg, #ffb2f2, #ffe38b);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 15px;
+            max-width: 510px;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+
+        .hero-subtitle strong {
+            color: #ffe9ff;
+            font-weight: 600;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .btn-primary {
+            padding: 11px 20px;
+            border-radius: 999px;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #ff7ad9, #e6b0d6);
+            color: #210a2d;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.55);
+            transform: translateY(0);
+            transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, filter 0.18s ease-out;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.7);
+        }
+
+        .btn-primary span.icon {
+            font-size: 16px;
+        }
+
+        .btn-ghost {
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(230, 176, 214, 0.4);
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform 0.1s ease-out;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(230, 176, 214, 0.08);
+            color: var(--text);
+            border-color: rgba(230, 176, 214, 0.7);
+            transform: translateY(-1px);
+        }
+
+        .hero-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .hero-meta strong {
+            color: #ffe9ff;
+        }
+
+        /* Rich card mockup */
+        .hero-card {
+            border-radius: var(--radius-xl);
+            padding: 18px 16px;
+            background: radial-gradient(circle at top, #3f2359 0, #150b20 55%, #050308 100%);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(255,255,255,0.06) 0, transparent 40%),
+                radial-gradient(circle at 90% 120%, rgba(255,186,255,0.12) 0, transparent 45%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .hero-card-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        .discord-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .discord-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 25% 10%, #ffe6ff, #f0b7ff 35%, #a95cff 75%, #4f1a81);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #260f33;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.65);
+        }
+
+        .discord-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .discord-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .discord-status {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .discord-status span.dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            margin-right: 4px;
+            background: radial-gradient(circle at 30% 10%, #ffffff, #35ffb3 40%, #148f5e 95%);
+            box-shadow: 0 0 9px rgba(53, 255, 179, 0.85);
+        }
+
+        .discord-game {
+            margin-top: 8px;
+            padding: 10px 10px;
+            border-radius: var(--radius-lg);
+            background: rgba(13, 8, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 12px;
+        }
+
+        .discord-game-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .discord-game-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .game-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: radial-gradient(circle at 25% 10%, #ffffff, #f5c5ff 30%, #c261ff 80%, #51207f);
+        }
+
+        .game-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .game-title {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .game-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: rgba(230, 176, 214, 0.08);
+            border: 1px solid rgba(230, 176, 214, 0.25);
+            color: var(--text-muted);
+        }
+
+        .online-chip {
+            font-size: 11px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: rgba(49, 197, 132, 0.1);
+            border: 1px solid rgba(49, 197, 132, 0.4);
+            color: #b3ffd7;
+        }
+
+        .small-note {
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 36px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 14px;
+        }
+
+        .section-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+            max-width: 680px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .feature-card {
+            padding: 14px 13px;
+            border-radius: var(--radius-lg);
+            background: rgba(11, 6, 20, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.38);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .feature-icon {
+            font-size: 18px;
+        }
+
+        .feature-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .feature-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .step {
+            padding: 14px 13px;
+            border-radius: var(--radius-lg);
+            background: rgba(11, 6, 20, 0.9);
+            border: 1px dashed rgba(230, 176, 214, 0.45);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .step-number {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--text-muted);
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .step-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .faq {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .faq-item {
+            padding: 14px 13px;
+            border-radius: var(--radius-md);
+            background: rgba(11, 6, 20, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .faq-q {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .faq-a {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 14px 18px 18px;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 14px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .hero-card {
+                order: -1;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .features-grid,
+            .steps,
+            .faq {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                padding-inline: 14px;
+            }
+
+            .hero-main {
+                padding: 20px 16px;
+            }
+
+            .features-grid,
+            .steps,
+            .faq {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <header>
+        <div class="brand">
+            <div class="brand-logo">Sso</div>
+            <div class="brand-text">
+                <div class="brand-title">Star Stable Online Rich Presence</div>
+                <div class="brand-sub">Statut Discord moderne pour SSO</div>
+            </div>
+        </div>
+
+        <nav>
+            <a href="#features">Fonctionnalités</a>
+            <a href="#how">Utilisation</a>
+            <a href="#faq">FAQ</a>
+            <a href="https://github.com/Floflo810/star-stable-online-rich-presence-discord" target="_blank" rel="noreferrer">GitHub</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-main">
+                <div class="badge">
+                    <div class="badge-dot"></div>
+                    Compatible Windows • Discord Rich Presence
+                </div>
+
+                <h1 class="hero-title">
+                    Montre ton <span>Star Stable Online</span> directement sur ton profil Discord.
+                </h1>
+
+                <p class="hero-subtitle">
+                    Star Stable Online Rich Presence affiche ton <strong>serveur</strong>, ton
+                    <strong>niveau</strong>, ta <strong>localisation en jeu</strong> et ton
+                    <strong>club</strong> sur Discord. Avec détection automatique, système de mise à jour
+                    et alertes pour les nouveaux codes SSO.
+                </p>
+
+                <div class="hero-actions">
+                    <a
+                        class="btn-primary"
+                        href="https://github.com/Floflo810/mise-a-jour/raw/refs/heads/main/StarStableOnlineRichPresence-0.2.2-Setup.exe"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        <span class="icon">⬇️</span>
+                        <span>Télécharger la dernière version</span>
+                    </a>
+
+                    <a
+                        class="btn-ghost"
+                        href="https://github.com/Floflo810/star-stable-online-rich-presence-discord"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        <span>Voir le projet sur GitHub</span>
+                    </a>
+                </div>
+
+                <p class="hero-meta">
+                    ✅ Mise à jour automatique • ⚙️ Installation simple via setup • 💬 Support sur Discord<br>
+                    ⬇️ <strong><span id="download-count">0</span></strong> téléchargements •
+                    👥 <strong><span id="hero-online-count">1</span></strong> joueurs en jeu avec le Rich Presence
+                </p>
+            </div>
+
+            <!-- Carte de Rich Presence (mock) -->
+            <aside class="hero-card" aria-label="Aperçu du Rich Presence Discord">
+                <div class="hero-card-inner">
+                    <div class="discord-bar">
+                        <div class="discord-avatar">🐴</div>
+                        <div class="discord-meta">
+                            <div class="discord-name">Violeta Eaglestrong</div>
+                            <div class="discord-status">
+                                <span class="dot"></span>
+                                En jeu sur Star Stable Online
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="discord-game">
+                        <div class="discord-game-title">RICH PRESENCE • PERSONNALISÉ</div>
+                        <div class="discord-game-main">
+                            <div class="game-logo"></div>
+                            <div class="game-info">
+                                <div class="game-title">Star Stable Online</div>
+                                <div class="game-sub">Blueberry Mountain • Steves Farm</div>
+                            </div>
+                        </div>
+                        <div class="tag-row">
+                            <span class="tag">Niveau 20</span>
+                            <span class="tag">Club : Night Sprinkles</span>
+                            <span class="online-chip"><span id="chip-online-count">23</span> joueurs en ligne</span>
+                        </div>
+                        <div class="small-note">
+                            Icône et localisation mises à jour automatiquement pendant que tu joues.
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <!-- FEATURES -->
+        <section id="features">
+            <h2 class="section-title">Fonctionnalités principales</h2>
+            <p class="section-subtitle">
+                Pensé pour la communauté Star Stable Online : simple à installer, joli à afficher, et assez malin pour fonctionner tout seul une fois configuré.
+            </p>
+
+            <div class="features-grid">
+                <article class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <div class="feature-title">Rich Presence complet</div>
+                    <p class="feature-text">
+                        Affiche ton pseudo, ton niveau, ton serveur, ta localisation et ton club directement sur ton profil Discord.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <div class="feature-title">Détection automatique</div>
+                    <p class="feature-text">
+                        Lecture des informations du client SSO (Sentry) pour récupérer ton serveur et ta position en jeu, sans rien taper à la main.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">📡</div>
+                    <div class="feature-title">Joueurs en ligne</div>
+                    <p class="feature-text">
+                        Un petit backend compte le nombre de joueurs utilisant le Rich Presence et l’affiche dans ton statut.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <div class="feature-title">Mise à jour automatique</div>
+                    <p class="feature-text">
+                        Le client vérifie automatiquement s’il existe une nouvelle version et peut télécharger le setup pour toi.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">🎁</div>
+                    <div class="feature-title">Alertes de codes</div>
+                    <p class="feature-text">
+                        Récupération des derniers codes SSO (codes cadeaux) et petite popup pour te proposer de les copier en un clic.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-title">Multilingue & clubs</div>
+                    <p class="feature-text">
+                        Interface traduite en plusieurs langues, gestion des clubs avec icône personnalisée et style adapté à l’univers SSO.
+                    </p>
+                </article>
+            </div>
+        </section>
+
+        <!-- HOW TO -->
+        <section id="how">
+            <h2 class="section-title">Comment ça marche ?</h2>
+            <p class="section-subtitle">
+                Quelques étapes suffisent pour que ton statut Discord devienne aussi vivant que ton cheval préféré.
+            </p>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">ÉTAPE 1</div>
+                    <div class="step-title">Télécharge et installe</div>
+                    <p class="step-text">
+                        Clique sur « Télécharger », lance le setup et installe Star Stable Online Rich Presence comme n’importe quel logiciel Windows.
+                    </p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">ÉTAPE 2</div>
+                    <div class="step-title">Première configuration</div>
+                    <p class="step-text">
+                        Au premier lancement, renseigne ton pseudo, ton serveur et ton club. Le jeu peut être détecté automatiquement.
+                    </p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">ÉTAPE 3</div>
+                    <div class="step-title">Lance SSO & profite</div>
+                    <p class="step-text">
+                        Lance Star Stable Online. Le Rich Presence se connecte à Discord, suit le jeu et met ton statut à jour en continu.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq">
+            <h2 class="section-title">Questions fréquentes</h2>
+
+            <div class="faq">
+                <div class="faq-item">
+                    <div class="faq-q">Est-ce que c’est officiel ?</div>
+                    <div class="faq-a">
+                        Non, ce projet n’est pas affilié à Star Stable Entertainment. C’est un outil communautaire,
+                        pensé par un joueur pour les joueurs.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Sur quel OS ça fonctionne ?</div>
+                    <div class="faq-a">
+                        Le client actuel est prévu pour Windows (10/11) avec Discord installé sur la même machine.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Comment recevoir les mises à jour ?</div>
+                    <div class="faq-a">
+                        Le Rich Presence vérifie automatiquement s’il existe une nouvelle version. Si oui, il peut
+                        télécharger le nouvel installateur et te proposer de l’installer.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Où signaler un bug ou proposer une idée ?</div>
+                    <div class="faq-a">
+                        Tu peux ouvrir une issue sur GitHub ou rejoindre le serveur Discord associé au projet pour
+                        discuter, poser des questions et proposer des améliorations.
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer>
+    <div>
+        © 2025 – Star Stable Online Rich Presence · Projet par Floflo810 · Non affilié à Star Stable Entertainment.
+    </div>
+    <div class="footer-links">
+        <a href="https://github.com/Floflo810/star-stable-online-rich-presence-discord" target="_blank" rel="noreferrer">
+            GitHub
+        </a>
+        <a href="https://discord.gg/6cFEvq2Dnu" target="_blank" rel="noreferrer">
+            Discord
+        </a>
+        <a href="#top">Retour en haut ↑</a>
+    </div>
+</footer>
+
+<!-- Stats dynamiques (téléchargements + joueurs en ligne) -->
+<script>
+    const API_BASE = "https://starstable-server.onrender.com";
+
+    async function refreshStats() {
+        try {
+            const [downloadRes, onlineRes] = await Promise.all([
+                fetch(API_BASE + "/download-count"),
+                fetch(API_BASE + "/online")
+            ]);
+
+            const downloadData = await downloadRes.json();
+            const onlineData = await onlineRes.json();
+
+            const downloadSpan = document.getElementById("download-count");
+            const heroOnlineSpan = document.getElementById("hero-online-count");
+            const chipOnlineSpan = document.getElementById("chip-online-count");
+
+            if (downloadSpan && typeof downloadData.downloads === "number") {
+                downloadSpan.textContent = downloadData.downloads;
+            }
+
+            if (typeof onlineData.online === "number") {
+                if (heroOnlineSpan) heroOnlineSpan.textContent = onlineData.online;
+                if (chipOnlineSpan) chipOnlineSpan.textContent = onlineData.online;
+            }
+        } catch (e) {
+            console.error("Erreur en récupérant les stats :", e);
+        }
+    }
+
+    // Premier chargement + rafraîchissement toutes les 30 secondes
+    refreshStats();
+    setInterval(refreshStats, 30000);
+</script>
+
+</body>
+</html>
