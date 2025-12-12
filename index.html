@@ -828,26 +828,20 @@
 
     async function refreshStats() {
         try {
-            const [downloadRes, onlineRes] = await Promise.all([
-                fetch(API_BASE + "/download-count"),
-                fetch(API_BASE + "/online")
-            ]);
+            const res = await fetch(API_BASE + "/stats"); // <-- UNE SEULE ROUTE
+            if (!res.ok) throw new Error("HTTP " + res.status);
 
-            const downloadData = await downloadRes.json();
-            const onlineData = await onlineRes.json();
+            const data = await res.json();
+            const downloads = typeof data.downloads === "number" ? data.downloads : 0;
+            const online = typeof data.online === "number" ? data.online : 0;
 
             const downloadSpan = document.getElementById("download-count");
             const heroOnlineSpan = document.getElementById("hero-online-count");
             const chipOnlineSpan = document.getElementById("chip-online-count");
 
-            if (downloadSpan && typeof downloadData.downloads === "number") {
-                downloadSpan.textContent = downloadData.downloads;
-            }
-
-            if (typeof onlineData.online === "number") {
-                if (heroOnlineSpan) heroOnlineSpan.textContent = onlineData.online;
-                if (chipOnlineSpan) chipOnlineSpan.textContent = onlineData.online;
-            }
+            if (downloadSpan) downloadSpan.textContent = downloads;
+            if (heroOnlineSpan) heroOnlineSpan.textContent = online;
+            if (chipOnlineSpan) chipOnlineSpan.textContent = online;
         } catch (e) {
             console.error("Erreur en récupérant les stats :", e);
         }
@@ -860,5 +854,6 @@
 
 </body>
 </html>
+
 
 
